@@ -42,22 +42,22 @@ for i in range(len(XRAW)):
 
 from sklearn.externals import joblib
 
-model = joblib.load("4-10000_12states.pkl") 
+model = joblib.load("./pickles/Soorya/3_10000_600_6states_50iter.pkl")
 
 
 # In[66]:
 
 
-n_states = 12
+n_states = 6
+steps = 600
+
+
 train_runs = 6000
 test_runs = 4000
-
 runs = 10000
-steps = 600
+
 lengths_arr_train = np.array(train_runs * [steps])
 lengths_arr_test = np.array(test_runs * [steps])
-
-
 
 # In[67]:
 
@@ -155,7 +155,7 @@ for state in thousandth_states:
 
 import csv
 
-with open('output.csv','a') as f:
+with open('./outputs/output_6st_50iter.csv','a') as f:
     headers = ['id','value']
     writer = csv.writer(f)
     writer.writerow(headers)
@@ -163,9 +163,9 @@ with open('output.csv','a') as f:
         X,Y = states_maps_mean[next_states[i]]
         xstr = str(6001+i) + "x"
         ystr = str(6001+i) + "y"
-        row = [xstr,X-0.2]
+        row = [xstr,X-0.25]
         writer.writerow(row)
-        row = [ystr,Y-0.2]
+        row = [ystr,Y-0.25]
         writer.writerow(row)
         
 

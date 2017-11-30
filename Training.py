@@ -25,15 +25,14 @@ def loadData(file_name='',data_type='float'):
 xraw=loadData('Label.csv')
 Obs=loadData('Observations.csv')
 
-
 # In[23]:
 
-
-st = 4000
+st = 3000
 end = 10000
-size = 6000
 numofsteps= 600
-Obs_aug = Obs[st:end,400:]
+
+size = end - st
+Obs_aug = Obs[st:end,1000-numofsteps:]
 lengths_arr = np.array(size * [numofsteps])
 #lengths_arr = np.ones(size)
 #lengths_arr = lengths_arr*1000
@@ -48,14 +47,14 @@ for i in range(1,len(Obs)):
     Obs_row = np.vstack((Obs_row,Obs[i]))
 '''
 #Obs_row.reshape(10000000,1)
-Obs_row.shape
+#Obs_row.shape
 
 
 # In[24]:
 
 
-n_states = 12
-clf = hmm.GaussianHMM(n_components=n_states, n_iter=2)
+n_states = 6
+clf = hmm.GaussianHMM(n_components=n_states, n_iter=60)
 clf.fit(Obs_row, lengths = lengths_arr)
 
 #xraw_row.shapex
@@ -65,7 +64,7 @@ clf.fit(Obs_row, lengths = lengths_arr)
 
 
 from sklearn.externals import joblib
-joblib.dump(clf, "4-10000_12states.pkl")
+joblib.dump(clf, "./pickles/Soorya/3_10000_600_6states_60iter.pkl")
 
 #joblib.load("filename.pkl") 
 

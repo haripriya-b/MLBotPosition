@@ -10,11 +10,12 @@ def loadData(file_name='',data_type='float'):
     data=np.loadtxt('./data/'+file_name, delimiter=',',dtype=data_type)
     return data
 
-
-runs = 3000
-steps = 1000
+runs = 10000
+steps = 600
+train_runs = 6000
+test_runs = 4000
 lengths_arr = np.array(runs * [steps])
-n_states = 36
+n_states = 9
 
 print "Loading Data..."
 XRAW=loadData('Label.csv')
@@ -22,38 +23,39 @@ labels_1quad = XRAW
 for i in range(len(XRAW)):
     labels_1quad[i,2] += 1.5
     labels_1quad[i, 3] += 1.5
-joblib.dump(labels_1quad, "labels_1quad.pkl")
+joblib.dump(labels_1quad, "./pickles/Soorya/labels_1quad.pkl")
 Obs=loadData('Observations.csv')
-joblib.dump(XRAW, "XRAW.pkl")
-joblib.dump(Obs, "Obs.pkl")
-
+joblib.dump(XRAW, "./pickles/Soorya/XRAW.pkl")
+joblib.dump(Obs, "./pickles/Soorya/Obs.pkl")
 
 print "Loading Pickles..."
-clf = joblib.load("hmm_model.pkl")
-XRAW = joblib.load("XRAW.pkl")
-labels_1quad = joblib.load("labels_1quad.pkl")
-Obs = joblib.load("Obs.pkl")
+clf = joblib.load("./pickles/Soorya/4-10000_49states_p2.pkl")
+XRAW = joblib.load("./pickles/Soorya/XRAW.pkl")
+labels_1quad = joblib.load("./pickles/Soorya/labels_1quad.pkl")
+Obs = joblib.load("./pickles/Soorya/Obs.pkl")
 print "Done Loading Data..."
 
 print(lengths_arr.shape)
-Obs_aug = Obs[:runs,:]
+
+Obs_aug = Obs[:train_runs,1000-steps:]
 Obs_row = Obs_aug.flatten().reshape(-1,1)
 print(Obs_row.shape)
 
-
-
+'''
+print "Training..."
 clf = hmm.GaussianHMM(n_components=n_states, n_iter=1)
 clf.fit(Obs_row, lengths = lengths_arr)
-joblib.dump(clf, "hmm_model.pkl")
-
-
+#joblib.dump(clf, "./pickles/Soorya/hmm_model.pkl")
+'''
 
 print "Predicting..."
-Z = clf.predict(Obs_row)
-print Z[0]
-Z = np.reshape(Z, (runs, steps))
-print Z.shape
-print labels_1quad.shape
+Z = clf.predict(Obs_row,lengths = lengths_arr)
+Z = np.reshape(Z, (train_runs, steps))
+print "predict shape ", Z.shape
+print "labels 1st quad shape ",labels_1quad.shape
+
+for i in range(4000):
+    print Z[i,:1]
 
 length_labels = len(labels_1quad)
 pair = []
@@ -66,11 +68,11 @@ for row in range(length_labels):
 
 
 states_maps = [[] for i in range(n_states)]
-for run in range(runs):
+for run in range(train_runs):
     labels_steps = labels_map[run] #dictionary {step:[x,y], step:[,]...)
     for step in range(steps):
         if step in labels_steps:
-            states_maps[Z[run,step]].append(labels_steps[step])
+             [Z[run,step]].append(labels_steps[step])
 
 states_maps_mean = [[]]*n_states
 avgX = 0
